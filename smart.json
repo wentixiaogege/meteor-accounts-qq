@@ -1,0 +1,8 @@
+{
+  "name": "accounts-qq",
+  "description": "Authentication package for the largest social network site in China - Tencent QQ",
+  "homepage": "https://github.com/yonggao/meteor-accounts-qq",
+  "author": "Yonggao Pan",
+  "version": "0.1.0",
+  "git": "https://github.com/yonggao/meteor-accounts-qq.git"
+}
