@@ -1,6 +1,6 @@
 ## accounts-qq
 
-OAuth 2.0 login service for the largest social network site in China - Tencent QQ
+Meteor OAuth 2.0 login service for the largest social network site in China - Tencent QQ
 
 ### Package Dependencies
 
@@ -12,7 +12,7 @@ This login service depends on the bleeding edge changes within the Meteor Auth b
 
 ### Usage
 
-1. `meteor add accounts-qq` or `meteor add accounts-qq`
+1. `meteor add accounts-qq` or `mrt add accounts-qq`
 2. Read the 'Integrating with Login Services' section of [Getting Started with Auth](https://github.com/meteor/meteor/wiki/Getting-started-with-Auth) and make sure you set up your config and secret correctly.
 3. Call `Meteor.loginWithQQ();`
 
