@@ -1,37 +1,41 @@
 (function() {
-
-  Meteor.accounts.qq.setSecret = function(secret) {
-    Meteor.accounts.qq._secret = secret;
-  };
-
   Meteor.accounts.oauth.registerService('qq', 2, function(query) {
+    var config = Meteor.accounts.configuration.findOne({
+      service : 'qq'
+    });
+    if (!config) {
+      throw new Meteor.accounts.ConfigError("QQ AuthService not configured");
+    }
 
-    var accessToken = getAccessToken(query);
-    var identity = getIdentity(accessToken.access_token);
+    var accessToken = getAccessToken(config, query);
+    var identity = getIdentity(config, accessToken.accessToken);
 
     return {
       options : {
         services : {
           qq : {
-            id : identity.openid,
-            accessToken : accessToken.access_token,
-            nickName : identity.name
+            id : identity.id,
+            accessToken : accessToken.accessToken
           }
         }
       },
       extra : {
-        name : identity.name
+        profile : {
+          name : identity.name,
+          figureUrl : identity.figureUrl,
+          level : identity.level
+        }
       }
     };
   });
 
-  var getAccessToken = function(query) {
+  var getAccessToken = function(config, query) {
     var result = Meteor.http.get("https://graph.qq.com/oauth2.0/token", {
       params : {
         code : query.code,
-        client_id : Meteor.accounts.qq._clientId,
-        client_secret : Meteor.accounts.qq._secret,
-        redirect_uri : Meteor.accounts.qq._appUrl + "/_oauth/qq?close",
+        client_id : config.clientId,
+        client_secret : config.secret,
+        redirect_uri : Meteor.absoluteUrl("_oauth/qq?close"),
         grant_type : 'authorization_code'
       }
     });
@@ -48,40 +52,45 @@
         qqAccessToken = kvArray[1];
     });
     return {
-      access_token : qqAccessToken
+      accessToken : qqAccessToken
     };
   };
 
-  var getIdentity = function(accessToken) {
-    var openIdResult = Meteor.http.get("https://graph.qq.com/oauth2.0/me", {
+  var getIdentity = function(config, accessToken) {
+    var meResult = Meteor.http.get("https://graph.qq.com/oauth2.0/me", {
       params : {
         access_token : accessToken
       }
     });
-    if (openIdResult.error) {
-      console.log("Error in getting account's open id, details: " + openIdResult.error);
-      throw openIdResult.error;
+
+    // The response content in /me requires trickly JSONP callback to parse
+    var callback = function(result) {
+      return result;
+    }
+    var meContent = eval(meResult.content);
+    if (meContent.error) {
+      console.log("Error in getting account's open id, details: " + meContent.error);
+      throw meContent.error;
     }
 
-    var callback = function(openIdResult) {
-      return openIdResult;
-    }
-    var openId = eval(openIdResult.content).openid;
     var userInfoResult = Meteor.http.get("https://graph.qq.com/user/get_user_info", {
       params : {
         access_token : accessToken,
-        oauth_consumer_key : Meteor.accounts.qq._clientId,
-        openid : openId
+        oauth_consumer_key : config.clientId,
+        openid : meContent.openid
       }
     });
-    if (userInfoResult.error) {
-      console.log("Error in getting account's user information, details: " + userInfoResult.error);
-      throw userInfoResult.error
+    var userInfoContent = JSON.parse(userInfoResult.content);
+    if (userInfoContent.ret) {// 'ret' > 0
+      console.log("Error in getting account's user information, details: " + userInfoContent.msg);
+      throw userInfoContent.msg
     }
-    var userInfo = JSON.parse(userInfoResult.content);
+
     return {
-      openid : openId,
-      name : userInfo.nickname
+      id : meContent.openid,
+      name : userInfoContent.nickname,
+      figureUrl : userInfoContent.figureurl,
+      level : userInfoContent.level
     };
   };
 })();
