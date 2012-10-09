@@ -1,7 +1,7 @@
-if (!Meteor.accounts.qq) {
-  Meteor.accounts.qq = {};
+if (!Accounts.qq) {
+  Accounts.qq = {};
 }
 
-Meteor.accounts.qq.config = function (options) {
-  Meteor.accounts.qq._options = options;
+Accounts.qq.config = function (options) {
+  Accounts.qq._options = options;
 };
