@@ -1,6 +1,6 @@
 (function () {
   Accounts.oauth.registerService('qq', 2, function (query) {
-    var config = Accounts.configuration.findOne({
+    var config = Accounts.loginServiceConfiguration.findOne({
       service: 'qq'
     });
     if (!config) {

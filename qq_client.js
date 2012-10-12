@@ -1,6 +1,11 @@
 (function () {
-  Meteor.loginWithQq = function (callback) {
-    var config = Accounts.configuration.findOne({
+  Meteor.loginWithQq = function (options, callback) {
+    if (!callback && typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
+    
+    var config = Accounts.loginServiceConfiguration.findOne({
       service: 'qq'
     });
     if (!config) {
@@ -14,17 +19,17 @@
     if (Accounts.qq._options && Accounts.qq._options.scope) {
       scope = _.union(scope, Accounts.qq._options.scope);
     }
-    var flat_scope = _.map(scope, encodeURIComponent).join(',');
+    var flatScope = _.map(scope, encodeURIComponent).join(',');
 
     var loginUrl = 
           'https://graph.qq.com/oauth2.0/authorize' + 
           '?response_type=code' + 
           '&client_id=' + config.clientId + 
-          '&scope=' + flat_scope + 
+          '&scope=' + flatScope + 
           '&redirect_uri=' + Meteor.absoluteUrl('_oauth/qq?close') + 
           '&state=' + state;
 
-    Accounts.oauth.initiateLogin(state, loginUrl);
+    Accounts.oauth.initiateLogin(state, loginUrl, callback);
   };
 
 })();
