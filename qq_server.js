@@ -9,13 +9,13 @@
 
     var accessToken = getAccessToken(config, query);
     var identity = getIdentity(config, accessToken.accessToken);
-
+    
     return {
       serviceData: {
         id: identity.id,
         accessToken: accessToken.accessToken
       },
-      extra: {
+      options: {
         profile: {
           name: identity.name,
           figureUrl: identity.figureUrl,
