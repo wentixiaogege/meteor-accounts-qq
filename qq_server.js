@@ -17,8 +17,11 @@
       },
       options: {
         profile: {
+          openId : identity.id,
           name: identity.name,
           figureUrl: identity.figureUrl,
+          figureUrlAt50 : identity.figureUrlAt50,
+          figureUrlAt100 : identity.figureUrlAt100,
           level: identity.level
         }
       }
@@ -91,6 +94,8 @@
       id: meContent.openid,
       name: userInfoContent.nickname,
       figureUrl: userInfoContent.figureurl,
+      figureUrlAt50: userInfoContent.figureurl_1,
+      figureUrlAt100: userInfoContent.figureurl_2,
       level: userInfoContent.level
     };
   };
